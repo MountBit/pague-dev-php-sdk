@@ -26,7 +26,7 @@ class Api extends Connector
             : $this->baseUrl;
     }
 
-    protected function defaultAuth(): HeaderAuthenticator
+    protected function defaultAuth(): ?HeaderAuthenticator
     {
         return new HeaderAuthenticator($this->apiKey, 'X-API-Key');
     }
