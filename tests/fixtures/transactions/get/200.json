@@ -1,0 +1,21 @@
+{
+  "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+  "status": "pending",
+  "type": "payment",
+  "paymentMethod": "pix",
+  "amount": 150.75,
+  "currency": "BRL",
+  "createdAt": "2023-11-07T05:31:56Z",
+  "description": "<string>",
+  "externalReference": "pedido-12345",
+  "customerId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+  "projectId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+  "metadata": {
+    "orderId": "12345",
+    "source": "website"
+  },
+  "pixCopyPaste": "00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "expiresAt": "2023-11-07T05:31:56Z",
+  "paidAt": "2023-11-07T05:31:56Z",
+  "updatedAt": "2023-11-07T05:31:56Z"
+}

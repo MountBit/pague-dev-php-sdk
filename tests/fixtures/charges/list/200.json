@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+      "projectId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+      "name": "Produto Premium",
+      "currency": "BRL",
+      "status": "active",
+      "slug": "produto-premium-2024",
+      "url": "https://pay.pague.dev/produto-premium-2024",
+      "paymentMethods": [
+        "pix",
+        "credit_card"
+      ],
+      "maxInstallments": 6,
+      "notifications": [
+        "email"
+      ],
+      "allowCoupons": true,
+      "paymentsCount": 5,
+      "totalCollected": 495,
+      "createdAt": "2023-11-07T05:31:56Z",
+      "customerId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+      "description": {},
+      "amount": 99.9,
+      "expiresAt": "2023-11-07T05:31:56Z",
+      "updatedAt": "2023-11-07T05:31:56Z"
+    }
+  ],
+  "total": 100,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 5
+}

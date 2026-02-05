@@ -1,0 +1,11 @@
+{
+  "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+  "status": "pending",
+  "amount": 150.75,
+  "currency": "BRL",
+  "pixCopyPaste": "00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "expiresAt": "2023-11-07T05:31:56Z",
+  "customerId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+  "createdAt": "2023-11-07T05:31:56Z",
+  "externalReference": "pedido-12345"
+}
