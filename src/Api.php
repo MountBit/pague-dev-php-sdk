@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev;
 
+use Saloon\Contracts\Authenticator;
 use Saloon\Http\Auth\HeaderAuthenticator;
 use Saloon\Http\Connector;
 use Saloon\Traits\Plugins\HasTimeout;
@@ -26,7 +27,7 @@ class Api extends Connector
             : $this->baseUrl;
     }
 
-    protected function defaultAuth(): ?HeaderAuthenticator
+    protected function defaultAuth(): ?Authenticator
     {
         return new HeaderAuthenticator($this->apiKey, 'X-API-Key');
     }
