@@ -187,6 +187,60 @@ print_r($response->json());
 
 ---
 
+### 🔔 Webhooks
+
+O SDK fornece utilitários para **verificar e parsear eventos de webhook** com segurança.
+
+#### Estrutura de um WebhookEvent
+
+```php
+use MountBit\PagueDev\Dtos\WebhookEvent;
+
+$event = new WebhookEvent(
+    event: 'payment_completed',
+    eventId: 'a0b78f10-c7f4-4f5d-98dd-3e36eafeb812',
+    timestamp: '2026-01-11T19:03:28.280Z',
+    data: [
+        'amount' => 150.0,
+        'customerId' => 'cust_123'
+    ]
+);
+```
+
+#### Parsear Webhook recebido
+
+```php
+use MountBit\PagueDev\Utils;
+use MountBit\PagueDev\Exceptions\InvalidSignature;
+use MountBit\PagueDev\Exceptions\InvalidWebhook;
+
+$rawBody = file_get_contents('php://input'); // corpo completo em formato puro
+$signatureHeader = $_SERVER['HTTP_X_SIGNATURE'] ?? '';
+$webhookSecret = 'sua_chave_secreta';
+
+try {
+    $webhookEvent = Utils::parseWebhook(
+        $rawBody,
+        $signatureHeader,
+        $webhookSecret,
+        shouldThrow: true,            // lança exceção se inválido
+        shouldValidateEventType: true // valida tipos de evento
+    );
+
+    // Processar o evento
+    if ($webhookEvent->event === 'payment_completed') {
+        // lógica para pagamento concluído
+    }
+
+} catch (InvalidSignature $e) {
+    echo 'Assinatura inválida';
+} catch (InvalidWebhook $e) {
+    echo 'Webhook inválido';
+}
+```
+
+---
+
 ## 🧪 Testes
 
 Use **Saloon MockClient** e fixtures JSON para validar requisições e respostas:
