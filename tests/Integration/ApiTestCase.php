@@ -6,7 +6,6 @@ namespace MountBit\PagueDev\Tests\Integration;
 
 use MountBit\PagueDev\Api;
 use PHPUnit\Framework\TestCase;
-use Saloon\Config;
 
 abstract class ApiTestCase extends TestCase
 {
@@ -21,8 +20,6 @@ abstract class ApiTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        Config::allowStrayRequests();
 
         $apiKey = getenv('PAGUEDEV_SANDBOX_API_KEY');
 
