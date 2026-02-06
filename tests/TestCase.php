@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase as FrameworkTestCase;
 use Saloon\Config;
 use Saloon\MockConfig;
 
-class TestCase extends FrameworkTestCase
+abstract class TestCase extends FrameworkTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
+
         Config::preventStrayRequests();
+
         MockConfig::throwOnMissingFixtures();
     }
 
