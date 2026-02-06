@@ -33,19 +33,45 @@ $connector = new Api($apiKey);
 
 ### 🎯 PIX
 
-#### Criar cobrança PIX
+#### Criar cobrança PIX com objeto Customer
 
 ```php
 use MountBit\PagueDev\Requests\Pix\Create as CreatePix;
+use MountBit\PagueDev\Dtos\Pix\Customer;
 
 $request = new CreatePix(
     amount: 100.50,
     description: 'Pagamento PIX',
     projectId: 'proj_123',
-    customer: [
-        'name' => 'João Silva',
-        'email' => 'joao@example.com'
-    ],
+    customer: new Customer(
+        name: 'John Doe',
+        document: '12345678910',
+        email: 'email@example.com',
+        phone: '12345',
+    ),
+    expiresIn: 3600,
+    externalReference: 'ref_001',
+    metadata: ['orderId' => 'order_001'],
+);
+
+$response = $connector->send($request);
+
+print_r($response->json());
+```
+
+---
+
+#### Criar cobrança PIX com Customer Id
+
+```php
+use MountBit\PagueDev\Requests\Pix\Create as CreatePix;
+use MountBit\PagueDev\Dtos\Pix\Customer;
+
+$request = new CreatePix(
+    amount: 100.50,
+    description: 'Pagamento PIX',
+    projectId: 'proj_123',
+    customerId: 'customer_123',
     expiresIn: 3600,
     externalReference: 'ref_001',
     metadata: ['orderId' => 'order_001'],
@@ -219,7 +245,7 @@ $signatureHeader = $_SERVER['HTTP_X_SIGNATURE'] ?? '';
 $webhookSecret = 'sua_chave_secreta';
 
 try {
-    $webhookEvent = Utils::parseWebhook(
+    $webhookEvent = Utils::getInstance()->parseWebhook(
         $rawBody,
         $signatureHeader,
         $webhookSecret,

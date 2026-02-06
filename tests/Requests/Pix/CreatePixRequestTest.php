@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Requests\Pix;
 
 use MountBit\PagueDev\Api;
+use MountBit\PagueDev\Dtos\Pix\Customer;
 use MountBit\PagueDev\Requests\Pix\Create as CreateRequest;
 use MountBit\PagueDev\Responses\Pix\Create as CreateResponse;
 use MountBit\PagueDev\Tests\TestCase;
@@ -33,7 +34,9 @@ class CreatePixRequestTest extends TestCase
             'projectId' => 'proj_pix_123',
             'customer' => [
                 'name' => 'John Doe',
+                'document' => '111111',
                 'email' => 'john@example.com',
+                'phone' => '12345',
             ],
             'expiresIn' => 3600,
             'externalReference' => 'ref_123',
@@ -44,7 +47,12 @@ class CreatePixRequestTest extends TestCase
             amount: $payload['amount'],
             description: $payload['description'],
             projectId: $payload['projectId'],
-            customer: $payload['customer'],
+            customer: new Customer(
+                name: $payload['customer']['name'],
+                document: $payload['customer']['document'],
+                email: $payload['customer']['email'],
+                phone: $payload['customer']['phone'],
+            ),
             expiresIn: $payload['expiresIn'],
             externalReference: $payload['externalReference'],
             metadata: $payload['metadata'],
@@ -59,7 +67,7 @@ class CreatePixRequestTest extends TestCase
 
         $this->assertTrue($response instanceof CreateResponse);
 
-        $this->assertSame($mockResponseJson, $response->json());
+        $this->assertSame($mockResponseJson, $response->toArray());
 
         foreach (array_keys($mockResponseJson) as $key) {
             $getter = 'get'.ucfirst($key);
