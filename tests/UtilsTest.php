@@ -241,6 +241,6 @@ class UtilsTest extends TestCase
 
     private function sign(string $body): string
     {
-        return hash_hmac('sha256', $body, $this->secret);
+        return hash_hmac('sha256', $body, hash('sha256', $this->secret));
     }
 }

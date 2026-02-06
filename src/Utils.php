@@ -46,7 +46,7 @@ class Utils
         $expectedSignature = hash_hmac(
             self::WEBHOOK_HASH_ALGORITHM,
             $rawBody,
-            $webhookSecret,
+            hash('sha256', $webhookSecret),
         );
 
         if (! hash_equals($expectedSignature, $signatureHeader)) {
