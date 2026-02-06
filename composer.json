@@ -33,8 +33,9 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit --no-coverage",
-        "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit",
+        "test": "vendor/bin/phpunit --no-coverage --exclude-group integration",
+        "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --exclude-group integration",
+        "test-integration": "vendor/bin/phpunit --group integration",
         "format": "vendor/bin/pint"
     },
     "config": {
