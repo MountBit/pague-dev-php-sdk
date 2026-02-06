@@ -40,7 +40,7 @@ class GetByIdTransactionTest extends TestCase
 
         $this->assertTrue($response instanceof GetTransactionByIdResponse);
 
-        $this->assertSame($mockResponseJson, $response->json());
+        $this->assertSame($mockResponseJson, $response->toArray());
 
         foreach (array_keys($mockResponseJson) as $key) {
             $getter = 'get'.ucfirst($key);

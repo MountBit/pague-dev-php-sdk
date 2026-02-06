@@ -48,7 +48,7 @@ class GetListProjectRequestTest extends TestCase
 
         $this->assertTrue($response instanceof GetProjectsListResponse);
 
-        $this->assertSame($mockResponseJson, $response->json());
+        $this->assertSame($mockResponseJson, $response->toArray());
 
         foreach (array_keys($mockResponseJson) as $key) {
             $getter = 'get'.ucfirst($key);

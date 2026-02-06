@@ -33,7 +33,7 @@ class UtilsTest extends TestCase
         $rawBody = json_encode($payload);
         $signature = $this->sign($rawBody);
 
-        $result = Utils::parseWebhook($rawBody, $signature, $this->secret);
+        $result = Utils::getInstance()->parseWebhook($rawBody, $signature, $this->secret);
 
         $this->assertInstanceOf(WebhookEvent::class, $result);
         $this->assertSame('payment_completed', $result->event);
@@ -54,7 +54,7 @@ class UtilsTest extends TestCase
         $rawBody = json_encode($payload);
         $signature = $this->sign($rawBody);
 
-        $result = Utils::parseWebhook(
+        $result = Utils::getInstance()->parseWebhook(
             $rawBody,
             $signature,
             $this->secret,
@@ -81,12 +81,35 @@ class UtilsTest extends TestCase
 
         $this->expectException(InvalidSignature::class);
 
-        Utils::parseWebhook(
+        Utils::getInstance()->parseWebhook(
             $rawBody,
             $invalidSignature,
             $this->secret,
             shouldThrow: true
         );
+    }
+
+    #[Test]
+    public function it_returns_null_for_invalid_signature(): void
+    {
+        $payload = [
+            'event' => 'payment_completed',
+            'eventId' => 'x1',
+            'timestamp' => '2026-02-05T19:10:00Z',
+            'data' => [],
+        ];
+
+        $rawBody = json_encode($payload);
+        $invalidSignature = 'invalid_signature';
+
+        $result = Utils::getInstance()->parseWebhook(
+            $rawBody,
+            $invalidSignature,
+            $this->secret,
+            shouldThrow: false
+        );
+
+        $this->assertNull($result);
     }
 
     #[Test]
@@ -97,12 +120,28 @@ class UtilsTest extends TestCase
 
         $this->expectException(InvalidWebhook::class);
 
-        Utils::parseWebhook(
+        Utils::getInstance()->parseWebhook(
             $rawBody,
             $signature,
             $this->secret,
             shouldThrow: true
         );
+    }
+
+    #[Test]
+    public function it_returns_null_for_invalid_json(): void
+    {
+        $rawBody = '{invalid_json}';
+        $signature = $this->sign($rawBody);
+
+        $result = Utils::getInstance()->parseWebhook(
+            $rawBody,
+            $signature,
+            $this->secret,
+            shouldThrow: false
+        );
+
+        $this->assertNull($result);
     }
 
     #[Test]
@@ -120,7 +159,7 @@ class UtilsTest extends TestCase
 
         $this->expectException(InvalidWebhook::class);
 
-        Utils::parseWebhook(
+        Utils::getInstance()->parseWebhook(
             $rawBody,
             $signature,
             $this->secret,
@@ -142,7 +181,7 @@ class UtilsTest extends TestCase
         $rawBody = json_encode($payload);
         $signature = $this->sign($rawBody);
 
-        $result = Utils::parseWebhook(
+        $result = Utils::getInstance()->parseWebhook(
             $rawBody,
             $signature,
             $this->secret,
@@ -167,7 +206,7 @@ class UtilsTest extends TestCase
         $this->expectException(InvalidWebhook::class);
         $this->expectExceptionMessage('Invalid webhook event: unknown_event');
 
-        Utils::parseWebhook(
+        Utils::getInstance()->parseWebhook(
             rawBody: $payload,
             signatureHeader: $signature,
             webhookSecret: $this->secret,
@@ -187,7 +226,7 @@ class UtilsTest extends TestCase
         ]);
         $signature = $this->sign($payload);
 
-        $event = Utils::parseWebhook(
+        $event = Utils::getInstance()->parseWebhook(
             rawBody: $payload,
             signatureHeader: $signature,
             webhookSecret: $this->secret,
