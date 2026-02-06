@@ -2,6 +2,14 @@
 
 All notable changes to `pague-dev-php-sdk` will be documented in this file.
 
+## v1.3.0 - 2026-02-06
+
+### What's Changed
+
+* feat: implementado testes de integração e ajustado para rodar testes também em PHP 8.5 by @Pr3d4dor in https://github.com/MountBit/pague-dev-php-sdk/pull/6
+
+**Full Changelog**: https://github.com/MountBit/pague-dev-php-sdk/compare/v1.2.1...v1.3.0
+
 ## v1.2.1 - 2026-02-06
 
 ### What's Changed
