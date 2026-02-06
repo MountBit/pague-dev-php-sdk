@@ -23,7 +23,7 @@ class Api extends Connector
     public function resolveBaseUrl(): string
     {
         return empty($this->baseUrl)
-            ? 'https://api.pague.dev/v1/pix'
+            ? 'https://api.pague.dev/v1'
             : $this->baseUrl;
     }
 
