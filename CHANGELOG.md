@@ -2,6 +2,14 @@
 
 All notable changes to `pague-dev-php-sdk` will be documented in this file.
 
+## v1.2.0 - 2026-02-06
+
+### What's Changed
+
+* fix: refatoração de testes e refatoração pra usar objeto customer em create pix e validação de customer vs customerId by @Pr3d4dor in https://github.com/MountBit/pague-dev-php-sdk/pull/4
+
+**Full Changelog**: https://github.com/MountBit/pague-dev-php-sdk/compare/v1.1.1...v1.2.0
+
 ## v1.1.1 - 2026-02-06
 
 ### What's Changed
