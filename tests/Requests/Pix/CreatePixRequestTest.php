@@ -76,5 +76,11 @@ class CreatePixRequestTest extends TestCase
 
             $this->assertEquals($mockResponseJson[$key], $result);
         }
+
+        $qrCode = $response->getQrCode();
+
+        $this->assertIsString($qrCode);
+        $this->assertNotEmpty($qrCode);
+        $this->assertStringStartsWith('data:image/svg+xml;base64', $qrCode);
     }
 }

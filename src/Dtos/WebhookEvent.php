@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Dtos;
 
-class WebhookEvent
+readonly class WebhookEvent
 {
     public function __construct(
-        public readonly string $event,
-        public readonly string $eventId,
-        public readonly string $timestamp,
-        public readonly array $data
+        public string $event,
+        public string $eventId,
+        public string $timestamp,
+        public array $data,
     ) {}
 }

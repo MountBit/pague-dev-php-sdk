@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Responses\Pix;
 
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QROutputInterface;
+use MountBit\PagueDev\Utils;
 use Saloon\Http\Response;
 
 class Create extends Response
@@ -51,6 +54,17 @@ class Create extends Response
     public function getExternalReference(): ?string
     {
         return $this->json('externalReference');
+    }
+
+    public function getQrCode(
+        string $imageType = QROutputInterface::MARKUP_SVG,
+        int $ecc = EccLevel::M,
+    ): string {
+        return Utils::getInstance()->generateQrCode(
+            data: $this->getPixCopyPaste(),
+            imageType: $imageType,
+            ecc: $ecc,
+        );
     }
 
     public function toArray(): array

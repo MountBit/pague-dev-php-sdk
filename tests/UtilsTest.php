@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Tests;
 
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QROutputInterface;
 use MountBit\PagueDev\Dtos\WebhookEvent;
 use MountBit\PagueDev\Exceptions\InvalidSignature;
 use MountBit\PagueDev\Exceptions\InvalidWebhook;
@@ -237,6 +239,60 @@ class UtilsTest extends TestCase
 
         $this->assertSame('custom_event', $event->event);
         $this->assertSame('evt_456', $event->eventId);
+    }
+
+    #[Test]
+    public function it_generates_an_svg_qr_code(): void
+    {
+        $data = 'any-string-can-be-encoded';
+
+        $qrCode = Utils::getInstance()->generateQrCode(
+            data: $data,
+            imageType: QROutputInterface::MARKUP_SVG,
+            ecc: EccLevel::M,
+        );
+
+        $this->assertIsString($qrCode);
+        $this->assertNotEmpty($qrCode);
+        $this->assertStringStartsWith('data:image/svg+xml;base64', $qrCode);
+    }
+
+    #[Test]
+    public function it_generates_qr_code_with_different_error_correction_levels(): void
+    {
+        $data = 'qr-with-high-ecc';
+
+        $qrCode = Utils::getInstance()->generateQrCode(
+            data: $data,
+            imageType: QROutputInterface::MARKUP_SVG,
+            ecc: EccLevel::H,
+        );
+
+        $this->assertIsString($qrCode);
+        $this->assertNotEmpty($qrCode);
+    }
+
+    #[Test]
+    public function it_generates_qr_code_with_different_output_types(): void
+    {
+        $data = 'qr-as-text';
+
+        $qrCode = Utils::getInstance()->generateQrCode(
+            data: $data,
+            imageType: QROutputInterface::MARKUP_SVG,
+        );
+
+        $this->assertIsString($qrCode);
+        $this->assertNotEmpty($qrCode);
+    }
+
+    #[Test]
+    public function it_can_generate_qr_code_from_empty_string(): void
+    {
+        $qrCode = Utils::getInstance()->generateQrCode('');
+
+        $this->assertIsString($qrCode);
+        $this->assertNotEmpty($qrCode);
     }
 
     private function sign(string $body): string
