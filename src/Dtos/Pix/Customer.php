@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Dtos\Pix;
 
-class Customer
+readonly class Customer
 {
     public function __construct(
-        public readonly string $name,
-        public readonly string $document,
-        public readonly ?string $email = null,
-        public readonly ?string $phone = null,
+        public string $name,
+        public string $document,
+        public ?string $email = null,
+        public ?string $phone = null,
     ) {}
 
     public function toArray()

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Dtos;
 
-class Customer
+readonly class Customer
 {
     public function __construct(
-        public readonly string $id,
-        public readonly string $name,
-        public readonly ?string $email,
-        public readonly string $documentType,
-        public readonly string $document,
-        public readonly ?string $phone,
-        public readonly string $createdAt
+        public string $id,
+        public string $name,
+        public ?string $email,
+        public string $documentType,
+        public string $document,
+        public ?string $phone,
+        public string $createdAt,
     ) {}
 }

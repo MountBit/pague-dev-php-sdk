@@ -84,6 +84,24 @@ print_r($response->json());
 
 ---
 
+#### Gerar QR Code a partir de cobrança PIX
+
+```php
+use MountBit\PagueDev\Requests\Pix\Create as CreatePixRequest;
+use MountBit\PagueDev\Responses\Pix\Create as CreatePixResponse;
+
+$request = new CreatePixRequest(
+    ...dados
+);
+
+/** @var CreatePixResponse $response **/
+$response = $connector->send($request);
+
+echo '<img src="'.$response->getQrCode().'" alt="QR Code" />';
+```
+
+---
+
 ### 💳 Cobranças (Links de pagamento)
 
 #### Criar cobrança

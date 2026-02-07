@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev;
 
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QROutputInterface;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 use MountBit\PagueDev\Dtos\WebhookEvent;
 use MountBit\PagueDev\Exceptions\InvalidSignature;
 use MountBit\PagueDev\Exceptions\InvalidWebhook;
@@ -93,5 +97,18 @@ class Utils
             timestamp: $json['timestamp'],
             data: $json['data'],
         );
+    }
+
+    public function generateQrCode(
+        string $data,
+        string $imageType = QROutputInterface::MARKUP_SVG,
+        int $ecc = EccLevel::M,
+    ): string {
+        $options = new QROptions([
+            'outputLevel' => $ecc,
+            'outputType' => $imageType,
+        ]);
+
+        return (new QRCode(options: $options))->render($data);
     }
 }
