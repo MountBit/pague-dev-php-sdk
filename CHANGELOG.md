@@ -2,6 +2,14 @@
 
 All notable changes to `pague-dev-php-sdk` will be documented in this file.
 
+## v1.5.0 - 2026-02-09
+
+### What's Changed
+
+* feat: adequação para user agent ser customizável, envio de headers extra e refatoração de código by @Pr3d4dor in https://github.com/MountBit/pague-dev-php-sdk/pull/8
+
+**Full Changelog**: https://github.com/MountBit/pague-dev-php-sdk/compare/v1.4.0...v1.5.0
+
 ## v1.4.0 - 2026-02-07
 
 ### What's Changed
