@@ -1,0 +1,11 @@
+{
+  "totalRevenue": 15000.00,
+  "currentMrr": 5000.00,
+  "groupedByDay": {
+    "2024-01-15": {
+      "revenue": 1500.5,
+      "mrr": 500.00,
+      "subscribers": 10.00
+    }
+  }
+}
