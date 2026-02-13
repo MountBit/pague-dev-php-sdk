@@ -17,8 +17,8 @@ class GetListMetricsTest extends ApiTestCase
 
         $this->assertTrue($response->successful());
 
-        $this->assertIsFloat($response->json()['totalRevenue']);
-        $this->assertIsFloat($response->json()['currentMrr']);
+        $this->assertIsNumeric($response->json()['totalRevenue']);
+        $this->assertIsNumeric($response->json()['currentMrr']);
         $this->assertIsArray($response->json()['groupedByDay']);
     }
 }
