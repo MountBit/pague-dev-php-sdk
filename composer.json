@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^8.4",
-        "chillerlan/php-qrcode": "^5.0",
+        "chillerlan/php-qrcode": "^5.0.5",
         "saloonphp/saloon": "^3.14.2"
     },
     "require-dev": {

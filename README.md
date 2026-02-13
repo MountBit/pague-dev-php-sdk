@@ -231,6 +231,22 @@ print_r($response->json());
 
 ---
 
+### 📊 Métricas
+
+#### Buscar métricas da conta
+
+```php
+use MountBit\PagueDev\Requests\Metrics\GetList as GetMetricsList;
+
+$request = new GetMetricsList();
+
+$response = $connector->send($request);
+
+print_r($response->json());
+```
+
+---
+
 ### 🔔 Webhooks
 
 O SDK fornece utilitários para **verificar e parsear eventos de webhook** com segurança.
