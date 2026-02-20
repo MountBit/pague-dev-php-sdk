@@ -2,6 +2,14 @@
 
 All notable changes to `pague-dev-php-sdk` will be documented in this file.
 
+## v1.7.0 - 2026-02-20
+
+### What's Changed
+
+* feat: refatoração de código e implementado funcionalidade de withdrawals by @Pr3d4dor in https://github.com/MountBit/pague-dev-php-sdk/pull/10
+
+**Full Changelog**: https://github.com/MountBit/pague-dev-php-sdk/compare/v1.6.0...v1.7.0
+
 ## v1.6.0 - 2026-02-13
 
 ### What's Changed
