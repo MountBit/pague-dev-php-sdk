@@ -247,6 +247,44 @@ print_r($response->json());
 
 ---
 
+### ➕ Saques
+
+#### Criar saque com campos inline
+
+```php
+use MountBit\PagueDev\Requests\Withdrawals\Create as CreateWithdraw;
+
+$request = new CreateWithdraw(
+    amount: 5.0,
+    pixKey: 'teste@teste.com.br',
+    pixKeyType: 'email',
+    holderName: 'Teste Silva',
+    holderDocument: '12345678901',
+    holderDocumentType: 'cpf',
+);
+
+$response = $connector->send($request);
+
+print_r($response->json());
+```
+
+#### Criar saque com bankAccountId
+
+```php
+use MountBit\PagueDev\Requests\Withdrawals\Create as CreateWithdraw;
+
+$request = new CreateWithdraw(
+    amount: 5.0,
+    bankAccountId: 'ID_DA_CONTA_BANCARIA',
+);
+
+$response = $connector->send($request);
+
+print_r($response->json());
+```
+
+---
+
 ### 🔔 Webhooks
 
 O SDK fornece utilitários para **verificar e parsear eventos de webhook** com segurança.
