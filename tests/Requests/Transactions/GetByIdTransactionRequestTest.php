@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Requests\Transactions;
+namespace MountBit\PagueDev\Tests\Requests\Transactions;
 
 use MountBit\PagueDev\Api;
 use MountBit\PagueDev\Requests\Transactions\GetById as GetTransactionByIdRequest;
@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 
-class GetByIdTransactionTest extends TestCase
+class GetByIdTransactionRequestTest extends TestCase
 {
     #[Test]
     public function it_sends_the_request_and_parses_the_response_successfully_when_status_is_200()

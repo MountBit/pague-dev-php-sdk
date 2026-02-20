@@ -1,0 +1,16 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "bankAccountId": null,
+  "amount": 150.75,
+  "feeAmount": 2.5,
+  "netAmount": 148.25,
+  "status": "completed",
+  "snapshotHolderName": "João da Silva",
+  "snapshotHolderDocument": "12345678901",
+  "createdAt": "2026-02-10T14:30:00.000Z",
+  "snapshotPixKey": "12345678901",
+  "snapshotPixKeyType": "cpf",
+  "failureReason": null,
+  "pspReference": null,
+  "processedAt": "2026-02-10T14:30:01.000Z"
+}
