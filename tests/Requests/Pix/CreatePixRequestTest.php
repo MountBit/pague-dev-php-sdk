@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Requests\Pix;
+namespace MountBit\PagueDev\Tests\Requests\Pix;
 
 use MountBit\PagueDev\Api;
 use MountBit\PagueDev\Dtos\Pix\Customer;

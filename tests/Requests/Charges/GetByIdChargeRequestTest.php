@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Requests\Charges;
+namespace MountBit\PagueDev\Tests\Requests\Charges;
 
 use MountBit\PagueDev\Api;
 use MountBit\PagueDev\Requests\Charges\GetById as GetByIdRequest;

@@ -17,6 +17,8 @@ abstract class ApiTestCase extends TestCase
 
     protected ?string $transactionId = null;
 
+    protected ?string $bankAccountId = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -32,6 +34,8 @@ abstract class ApiTestCase extends TestCase
         $this->projectId = getenv('PAGUEDEV_SANDBOX_PROJECT_ID') ?? null;
 
         $this->transactionId = getenv('PAGUEDEV_SANDBOX_TRANSACTION_ID') ?? null;
+
+        $this->bankAccountId = getenv('PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID') ?? null;
 
         $this->api = new Api($apiKey);
     }

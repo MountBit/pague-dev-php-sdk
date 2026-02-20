@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Requests\Customers;
+namespace MountBit\PagueDev\Tests\Requests\Customers;
 
 use MountBit\PagueDev\Api;
 use MountBit\PagueDev\Requests\Customers\GetList as GetListRequest;
