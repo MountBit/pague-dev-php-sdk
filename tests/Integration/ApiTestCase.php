@@ -29,13 +29,13 @@ abstract class ApiTestCase extends TestCase
             $this->markTestSkipped('PAGUEDEV_SANDBOX_API_KEY not set.');
         }
 
-        $this->chargeId = getenv('PAGUEDEV_SANDBOX_CHARGE_ID') ?? null;
+        $this->chargeId = getenv('PAGUEDEV_SANDBOX_CHARGE_ID') ?: null;
 
-        $this->projectId = getenv('PAGUEDEV_SANDBOX_PROJECT_ID') ?? null;
+        $this->projectId = getenv('PAGUEDEV_SANDBOX_PROJECT_ID') ?: null;
 
-        $this->transactionId = getenv('PAGUEDEV_SANDBOX_TRANSACTION_ID') ?? null;
+        $this->transactionId = getenv('PAGUEDEV_SANDBOX_TRANSACTION_ID') ?: null;
 
-        $this->bankAccountId = getenv('PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID') ?? null;
+        $this->bankAccountId = getenv('PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID') ?: null;
 
         $this->api = new Api($apiKey);
     }

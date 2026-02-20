@@ -21,6 +21,7 @@ jobs:
       PAGUEDEV_SANDBOX_CHARGE_ID: ${{ secrets.PAGUEDEV_SANDBOX_CHARGE_ID }}
       PAGUEDEV_SANDBOX_PROJECT_ID: ${{ secrets.PAGUEDEV_SANDBOX_PROJECT_ID }}
       PAGUEDEV_SANDBOX_TRANSACTION_ID: ${{ secrets.PAGUEDEV_SANDBOX_TRANSACTION_ID }}
+      PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID: ${{ secrets.PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID }}
 
     name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
