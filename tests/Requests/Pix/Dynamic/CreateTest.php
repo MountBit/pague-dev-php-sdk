@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MountBit\PagueDev\Tests\Requests\Pix;
+namespace MountBit\PagueDev\Tests\Requests\Pix\Dynamic;
 
 use LogicException;
 use MountBit\PagueDev\Dtos\Pix\Customer;
-use MountBit\PagueDev\Requests\Pix\Create;
+use MountBit\PagueDev\Requests\Pix\Dynamic\Create;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
