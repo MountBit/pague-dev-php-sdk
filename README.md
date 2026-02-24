@@ -31,12 +31,29 @@ $connector = new Api($apiKey);
 
 ## 🧰 Recursos Disponíveis
 
-### 🎯 PIX
+### 🎯 PIX - Estático
+
+#### Criar cobrança PIX
+
+```php
+use MountBit\PagueDev\Requests\Pix\Static\Create as CreatePix;
+
+$request = new CreatePix(
+    amount: 25.00,
+    description: 'Pix Estático',
+);
+
+$response = $connector->send($request);
+
+print_r($response->json());
+```
+
+### 🎯 PIX - Dinâmico
 
 #### Criar cobrança PIX com objeto Customer
 
 ```php
-use MountBit\PagueDev\Requests\Pix\Create as CreatePix;
+use MountBit\PagueDev\Requests\Pix\Dynamic\Create as CreatePix;
 use MountBit\PagueDev\Dtos\Pix\Customer;
 
 $request = new CreatePix(
@@ -64,7 +81,7 @@ print_r($response->json());
 #### Criar cobrança PIX com Customer Id
 
 ```php
-use MountBit\PagueDev\Requests\Pix\Create as CreatePix;
+use MountBit\PagueDev\Requests\Pix\Dynamic\Create as CreatePix;
 use MountBit\PagueDev\Dtos\Pix\Customer;
 
 $request = new CreatePix(
@@ -84,11 +101,14 @@ print_r($response->json());
 
 ---
 
-#### Gerar QR Code a partir de cobrança PIX
+#### Gerar QR Code a partir de cobrança PIX (Estático ou Dinâmico)
 
 ```php
-use MountBit\PagueDev\Requests\Pix\Create as CreatePixRequest;
-use MountBit\PagueDev\Responses\Pix\Create as CreatePixResponse;
+use MountBit\PagueDev\Requests\Pix\Dynamic\Create as CreatePixRequest;
+use MountBit\PagueDev\Responses\Pix\Dynamic\Create as CreatePixResponse;
+// ou
+// use MountBit\PagueDev\Requests\Pix\Static\Create as CreatePixRequest;
+// use MountBit\PagueDev\Responses\Pix\Static\Create as CreatePixResponse;
 
 $request = new CreatePixRequest(
     ...dados

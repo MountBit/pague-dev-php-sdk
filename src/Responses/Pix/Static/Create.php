@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MountBit\PagueDev\Responses\Pix;
+namespace MountBit\PagueDev\Responses\Pix\Static;
 
 use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\Output\QROutputInterface;
@@ -36,19 +36,14 @@ class Create extends Response
         return $this->json('pixCopyPaste');
     }
 
-    public function getExpiresAt(): string
-    {
-        return $this->json('expiresAt');
-    }
-
-    public function getCustomerId(): string
-    {
-        return $this->json('customerId');
-    }
-
     public function getCreatedAt(): string
     {
         return $this->json('createdAt');
+    }
+
+    public function getQrCodeBase64(): ?string
+    {
+        return $this->json('qrCodeBase64');
     }
 
     public function getExternalReference(): ?string

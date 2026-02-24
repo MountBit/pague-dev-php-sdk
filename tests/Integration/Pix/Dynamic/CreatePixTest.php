@@ -1,9 +1,9 @@
 <?php
 
-namespace MountBit\PagueDev\Tests\Integration\Pix;
+namespace MountBit\PagueDev\Tests\Integration\Pix\Dynamic;
 
 use MountBit\PagueDev\Dtos\Pix\Customer;
-use MountBit\PagueDev\Requests\Pix\Create;
+use MountBit\PagueDev\Requests\Pix\Dynamic\Create;
 use MountBit\PagueDev\Tests\Integration\ApiTestCase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
