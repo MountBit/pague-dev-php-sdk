@@ -2,6 +2,14 @@
 
 All notable changes to `pague-dev-php-sdk` will be documented in this file.
 
+## v2.0.0 - 2026-02-24
+
+### What's Changed
+
+* feat: implementado pix estático e dinâmico e adicionado o mapeamento do atributo qrCodeBase64 nas respostas dos mesmos by @Pr3d4dor in https://github.com/MountBit/pague-dev-php-sdk/pull/11
+
+**Full Changelog**: https://github.com/MountBit/pague-dev-php-sdk/compare/v1.7.0...v2.0.0
+
 ## v1.7.0 - 2026-02-20
 
 ### What's Changed
