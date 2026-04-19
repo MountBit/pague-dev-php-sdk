@@ -27,7 +27,7 @@ class GetListRequestTest extends TestCase
 
         $connector = (new Api('test'))->withMockClient($mockClient);
 
-        $request = new GetAccountListRequest();
+        $request = new GetAccountListRequest;
 
         /** @var GetAccountListResponse $response */
         $response = $connector->send($request);
@@ -37,7 +37,7 @@ class GetListRequestTest extends TestCase
         $this->assertTrue($response instanceof GetAccountListResponse);
 
         foreach ($mockResponseJson['company'] as $companyKey => $companyValue) {
-            $companyGetter = match($companyKey) {
+            $companyGetter = match ($companyKey) {
                 'razaoSocial' => 'getCompanyName',
                 'nomeFantasia' => 'getCompanyTradeName',
                 'cnpj' => 'getCompanyCnpj',
