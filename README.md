@@ -1,6 +1,6 @@
 # MountBit Pague.dev PHP SDK
 
-SDK em PHP para integrar facilmente com a **API pague.dev**, permitindo que aplicações PHP criem cobranças PIX, gerenciem clientes, projetos, cobranças (links de pagamento) e transações de forma simples e tipada.
+SDK em PHP para integrar facilmente com a **API pague.dev**, permitindo que aplicações PHP criem cobranças PIX, gerenciem conta, clientes, projetos, cobranças (links de pagamento), transações e saques de forma simples e tipada.
 
 A API do pague.dev oferece recursos como PIX, cobranças, clientes e transações por meio de uma interface REST limpa, com autenticação via API Key e respostas em JSON. ([docs.pague.dev](https://docs.pague.dev/?utm_source=chatgpt.com))
 
@@ -301,6 +301,41 @@ $request = new CreateWithdraw(
 $response = $connector->send($request);
 
 print_r($response->json());
+```
+
+---
+
+### 💰 Conta
+
+#### Buscar informações da conta
+
+```php
+use MountBit\PagueDev\Requests\Account\GetList as GetAccountList;
+
+$request = new GetAccountList();
+
+$response = $connector->send($request);
+
+print_r($response->json());
+```
+
+**Acessando os campos da resposta:**
+
+```php
+echo $response->getCompanyName();           // Razão Social
+echo $response->getCompanyTradeName();      // Nome Fantasia
+echo $response->getCompanyCnpj();           // CNPJ
+echo $response->getCompanyEmail();          // Email da empresa
+echo $response->getCompanyPhone();          // Telefone da empresa
+echo $response->getCompanyStatus();         // Status da conta
+
+echo $response->getBalanceAvailableAmountFormatted();   // Saldo disponível (formatado)
+echo $response->getBalancePromotionalAmountFormatted(); // Saldo promocional
+echo $response->getBalanceHeldAmountFormatted();        // Saldo bloqueado
+echo $response->getBalanceTotalAmountFormatted();       // Saldo total
+
+echo $response->getBalanceCurrency();        // Moeda
+echo $response->getBalanceUpdatedAt();       // Última atualização do saldo
 ```
 
 ---
