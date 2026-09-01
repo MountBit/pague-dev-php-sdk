@@ -17,7 +17,8 @@ class GetList extends Request
     public function __construct(
         public readonly ?int $page = null,
         public readonly ?int $limit = null,
-        public readonly ?string $search = null
+        public readonly ?string $sortBy = null,
+        public readonly ?string $sortOrder = null,
     ) {}
 
     public function resolveEndpoint(): string
@@ -37,8 +38,12 @@ class GetList extends Request
             $query['limit'] = $this->limit;
         }
 
-        if (! empty($this->search)) {
-            $query['search'] = $this->search;
+        if (! empty($this->sortBy)) {
+            $query['sortBy'] = $this->sortBy;
+        }
+
+        if (! empty($this->sortOrder)) {
+            $query['sortOrder'] = $this->sortOrder;
         }
 
         return $query;

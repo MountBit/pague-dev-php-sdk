@@ -1,0 +1,26 @@
+{
+  "account": {
+    "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+    "status": "approved"
+  },
+  "balance": {
+    "available": {
+      "amount": 15075,
+      "amountFormatted": 150.75
+    },
+    "promotional": {
+      "amount": 0,
+      "amountFormatted": 0
+    },
+    "held": {
+      "amount": 2500,
+      "amountFormatted": 25
+    },
+    "total": {
+      "amount": 17575,
+      "amountFormatted": 175.75
+    },
+    "currency": "BRL",
+    "updatedAt": "2026-02-10T14:30:00.000Z"
+  }
+}

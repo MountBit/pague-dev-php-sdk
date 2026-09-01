@@ -1,16 +1,17 @@
 {
   "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "bankAccountId": null,
+  "projectId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
   "amount": 150.75,
   "feeAmount": 2.5,
   "netAmount": 148.25,
-  "status": "completed",
-  "snapshotHolderName": "João da Silva",
-  "snapshotHolderDocument": "12345678901",
-  "createdAt": "2026-02-10T14:30:00.000Z",
+  "status": "pending",
   "snapshotPixKey": "12345678901",
   "snapshotPixKeyType": "cpf",
+  "snapshotHolderName": "João da Silva",
+  "snapshotHolderDocument": "12345678901",
   "failureReason": null,
   "pspReference": null,
-  "processedAt": "2026-02-10T14:30:01.000Z"
+  "createdAt": "2026-02-10T14:30:00.000Z",
+  "processedAt": "2026-02-10T14:30:01.000Z",
+  "externalReference": "saque-empresa-001"
 }

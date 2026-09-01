@@ -38,7 +38,7 @@ class GetById extends Response
         return $this->json('currency');
     }
 
-    public function getcreatedAt(): string
+    public function getCreatedAt(): string
     {
         return $this->json('createdAt');
     }
@@ -78,9 +78,24 @@ class GetById extends Response
         return $this->json('expiresAt');
     }
 
-    public function getpaidAt(): ?string
+    public function getPaidAt(): ?string
     {
         return $this->json('paidAt');
+    }
+
+    public function getE2eId(): ?string
+    {
+        return $this->json('e2eId');
+    }
+
+    public function getCounterpartName(): ?string
+    {
+        return $this->json('counterpartName');
+    }
+
+    public function getCounterpartDocument(): ?string
+    {
+        return $this->json('counterpartDocument');
     }
 
     public function getUpdatedAt(): ?string

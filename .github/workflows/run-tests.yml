@@ -9,6 +9,9 @@ on:
       - 'composer.json'
       - 'composer.lock'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -43,6 +46,9 @@ jobs:
 
       - name: List Installed Dependencies
         run: composer show -D
+
+      - name: Audit dependencies for known vulnerabilities
+        run: composer audit --no-dev
 
       - name: Execute tests
         run: composer test

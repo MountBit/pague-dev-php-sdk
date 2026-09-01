@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Tests\Requests\Projects;
 
-use MountBit\PagueDev\Api;
 use MountBit\PagueDev\Requests\Projects\GetList as GetProjectsListRequest;
 use MountBit\PagueDev\Responses\Projects\GetList as GetProjectsListResponse;
 use MountBit\PagueDev\Tests\TestCase;
@@ -15,7 +14,7 @@ use Saloon\Http\Faking\MockResponse;
 class GetListProjectRequestTest extends TestCase
 {
     #[Test]
-    public function it_sends_the_request_and_parses_the_response_successfully_when_status_is_200()
+    public function it_sends_the_request_and_parses_the_response_successfully_when_status_is_200(): void
     {
         $mockResponse = $this->fixture('/projects/list/200.json');
 
@@ -25,22 +24,22 @@ class GetListProjectRequestTest extends TestCase
             GetProjectsListRequest::class => MockResponse::make($mockResponse, 200),
         ]);
 
-        $connector = (new Api('test'))->withMockClient($mockClient);
-
         $query = [
             'page' => 1,
             'limit' => 10,
-            'search' => 'Test Project',
+            'sortBy' => 'createdAt',
+            'sortOrder' => 'desc',
         ];
 
         $request = new GetProjectsListRequest(
             page: $query['page'],
             limit: $query['limit'],
-            search: $query['search']
+            sortBy: $query['sortBy'],
+            sortOrder: $query['sortOrder'],
         );
 
         /** @var GetProjectsListResponse $response */
-        $response = $connector->send($request);
+        $response = $this->connector($mockClient)->send($request);
 
         $mockClient->assertSent(
             fn (GetProjectsListRequest $request) => $request->defaultQuery() === $query
@@ -50,17 +49,27 @@ class GetListProjectRequestTest extends TestCase
 
         $this->assertSame($mockResponseJson, $response->toArray());
 
-        foreach (array_keys($mockResponseJson) as $key) {
-            $getter = 'get'.ucfirst($key);
-            $result = $response->$getter();
+        $this->assertSame($mockResponseJson['total'], $response->getTotal());
+        $this->assertSame($mockResponseJson['page'], $response->getPage());
+        $this->assertSame($mockResponseJson['limit'], $response->getLimit());
+        $this->assertSame($mockResponseJson['totalPages'], $response->getTotalPages());
 
-            if ($key === 'items') {
-                foreach ($mockResponseJson['items'] as $index => $item) {
-                    $this->assertEquals($item, (array) $result[$index]);
-                }
-            } else {
-                $this->assertEquals($mockResponseJson[$key], $result);
-            }
+        foreach ($mockResponseJson['items'] as $index => $item) {
+            $project = $response->getItems()[$index];
+
+            $this->assertSame($item['id'], $project->id);
+            $this->assertSame($item['name'], $project->name);
+            $this->assertSame($item['color'], $project->color);
+            $this->assertSame($item['description'], $project->description);
+            $this->assertSame($item['logoUrl'], $project->logoUrl);
+            $this->assertSame($item['createdAt'], $project->createdAt);
+            $this->assertNull($project->updatedAt);
         }
+    }
+
+    #[Test]
+    public function it_sends_no_query_parameters_by_default(): void
+    {
+        $this->assertSame([], (new GetProjectsListRequest)->defaultQuery());
     }
 }
