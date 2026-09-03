@@ -11,5 +11,6 @@ readonly class WebhookEvent
         public string $eventId,
         public string $timestamp,
         public array $data,
+        public ?string $subAccount = null,
     ) {}
 }

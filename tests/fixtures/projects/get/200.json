@@ -1,0 +1,9 @@
+{
+  "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+  "name": "Minha Loja",
+  "description": "Loja virtual de eletrônicos",
+  "color": "#3B82F6",
+  "logoUrl": "https://example.com/logo.png",
+  "createdAt": "2026-02-10T05:31:56Z",
+  "updatedAt": "2026-02-11T05:31:56Z"
+}

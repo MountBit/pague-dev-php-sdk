@@ -13,9 +13,9 @@ class Create extends Response
         return $this->json('id');
     }
 
-    public function getBankAccountId(): ?string
+    public function getProjectId(): ?string
     {
-        return $this->json('bankAccountId');
+        return $this->json('projectId');
     }
 
     public function getAmount(): float
@@ -76,6 +76,11 @@ class Create extends Response
     public function getCreatedAt(): ?string
     {
         return $this->json('createdAt');
+    }
+
+    public function getExternalReference(): ?string
+    {
+        return $this->json('externalReference');
     }
 
     public function toArray(): array

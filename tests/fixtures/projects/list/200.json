@@ -3,10 +3,10 @@
     {
       "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
       "name": "Minha Loja",
-      "color": "#3B82F6",
-      "createdAt": "2023-11-07T05:31:56Z",
       "description": "Loja virtual de eletrônicos",
-      "logoUrl": "https://example.com/logo.png"
+      "color": "#3B82F6",
+      "logoUrl": "https://example.com/logo.png",
+      "createdAt": "2026-02-10T05:31:56Z"
     }
   ],
   "total": 100,

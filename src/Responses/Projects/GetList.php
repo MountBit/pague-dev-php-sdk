@@ -15,14 +15,7 @@ class GetList extends Response
     public function getItems(): array
     {
         return array_map(
-            fn (array $project) => new Project(
-                $project['id'],
-                $project['name'],
-                $project['color'] ?? null,
-                $project['description'] ?? null,
-                $project['logoUrl'] ?? null,
-                $project['createdAt'] ?? null
-            ),
+            fn (array $project) => Project::fromArray($project),
             $this->json('items') ?: []
         );
     }

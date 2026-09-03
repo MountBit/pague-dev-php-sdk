@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Tests\Requests\Transactions;
 
-use MountBit\PagueDev\Api;
-use MountBit\PagueDev\Requests\Transactions\GetById as GetTransactionByIdRequest;
-use MountBit\PagueDev\Responses\Transactions\GetById as GetTransactionByIdResponse;
+use MountBit\PagueDev\Requests\Transactions\GetById as GetByIdRequest;
+use MountBit\PagueDev\Responses\Transactions\GetById as GetByIdResponse;
 use MountBit\PagueDev\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Saloon\Http\Faking\MockClient;
@@ -15,37 +14,45 @@ use Saloon\Http\Faking\MockResponse;
 class GetByIdTransactionRequestTest extends TestCase
 {
     #[Test]
-    public function it_sends_the_request_and_parses_the_response_successfully_when_status_is_200()
+    public function it_sends_the_request_and_parses_the_response_successfully_when_status_is_200(): void
     {
         $mockResponse = $this->fixture('/transactions/get/200.json');
 
         $mockResponseJson = json_decode($mockResponse, true);
 
         $mockClient = new MockClient([
-            GetTransactionByIdRequest::class => MockResponse::make($mockResponse, 200),
+            GetByIdRequest::class => MockResponse::make($mockResponse, 200),
         ]);
 
-        $connector = (new Api('test'))->withMockClient($mockClient);
+        $request = new GetByIdRequest(id: $mockResponseJson['id']);
 
-        $transactionId = 'txn_123';
+        /** @var GetByIdResponse $response */
+        $response = $this->connector($mockClient)->send($request);
 
-        $request = new GetTransactionByIdRequest(id: $transactionId);
-
-        /** @var GetTransactionByIdResponse $response */
-        $response = $connector->send($request);
-
-        $mockClient->assertSent(
-            fn (GetTransactionByIdRequest $request) => $request->resolveEndpoint() === '/transactions/'.$transactionId
-        );
-
-        $this->assertTrue($response instanceof GetTransactionByIdResponse);
+        $this->assertTrue($response instanceof GetByIdResponse);
 
         $this->assertSame($mockResponseJson, $response->toArray());
 
         foreach (array_keys($mockResponseJson) as $key) {
             $getter = 'get'.ucfirst($key);
-            $result = $response->$getter();
-            $this->assertSame($mockResponseJson[$key], $result);
+
+            $this->assertEquals($mockResponseJson[$key], $response->$getter());
         }
+    }
+
+    #[Test]
+    public function it_accepts_an_external_reference_as_the_identifier(): void
+    {
+        $request = new GetByIdRequest(id: 'pedido-12345');
+
+        $this->assertSame('/transactions/pedido-12345', $request->resolveEndpoint());
+    }
+
+    #[Test]
+    public function it_encodes_the_transaction_id_in_the_endpoint(): void
+    {
+        $request = new GetByIdRequest(id: '../account');
+
+        $this->assertSame('/transactions/..%2Faccount', $request->resolveEndpoint());
     }
 }

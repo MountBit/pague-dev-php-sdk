@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MountBit\PagueDev\Exceptions;
+
+use InvalidArgumentException;
+
+class MissingCredentials extends InvalidArgumentException
+{
+    public static function create(string $message = ''): self
+    {
+        return new self(message: $message);
+    }
+}

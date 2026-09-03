@@ -8,7 +8,7 @@ use RuntimeException;
 
 class InvalidWebhook extends RuntimeException
 {
-    public static function create(string $message = 'Invalid webhook')
+    public static function create(string $message = ''): self
     {
         return new self(message: $message);
     }

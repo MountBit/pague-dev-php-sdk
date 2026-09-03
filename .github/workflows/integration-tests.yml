@@ -5,6 +5,9 @@ on:
     - cron: '0 12 * * 1' # Every Monday at 12:00 UTC
   workflow_dispatch: # Allows manual execution
 
+permissions:
+  contents: read
+
 jobs:
   integration-tests:
     runs-on: ${{ matrix.os }}
@@ -17,11 +20,11 @@ jobs:
         stability: [prefer-lowest, prefer-stable]
 
     env:
-      PAGUEDEV_SANDBOX_API_KEY: ${{ secrets.PAGUEDEV_SANDBOX_API_KEY }}
-      PAGUEDEV_SANDBOX_CHARGE_ID: ${{ secrets.PAGUEDEV_SANDBOX_CHARGE_ID }}
-      PAGUEDEV_SANDBOX_PROJECT_ID: ${{ secrets.PAGUEDEV_SANDBOX_PROJECT_ID }}
-      PAGUEDEV_SANDBOX_TRANSACTION_ID: ${{ secrets.PAGUEDEV_SANDBOX_TRANSACTION_ID }}
-      PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID: ${{ secrets.PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID }}
+      PAGUEDEV_CLIENT_ID: ${{ secrets.PAGUEDEV_CLIENT_ID }}
+      PAGUEDEV_CLIENT_SECRET: ${{ secrets.PAGUEDEV_CLIENT_SECRET }}
+      PAGUEDEV_PROJECT_ID: ${{ secrets.PAGUEDEV_PROJECT_ID }}
+      PAGUEDEV_TRANSACTION_ID: ${{ secrets.PAGUEDEV_TRANSACTION_ID }}
+      PAGUEDEV_SUB_ACCOUNT: ${{ secrets.PAGUEDEV_SUB_ACCOUNT }}
 
     name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -46,6 +49,9 @@ jobs:
 
       - name: List Installed Dependencies
         run: composer show -D
+
+      - name: Audit dependencies for known vulnerabilities
+        run: composer audit --no-dev
 
       - name: Execute tests
         run: composer test-integration

@@ -7,18 +7,23 @@ namespace MountBit\PagueDev\Dtos\Pix;
 readonly class Customer
 {
     public function __construct(
-        public string $name,
-        public string $document,
+        public ?string $name = null,
+        public ?string $document = null,
         public ?string $email = null,
         public ?string $phone = null,
     ) {}
 
-    public function toArray()
+    public function toArray(): array
     {
-        $data = [
-            'name' => $this->name,
-            'document' => $this->document,
-        ];
+        $data = [];
+
+        if (! empty($this->name)) {
+            $data['name'] = $this->name;
+        }
+
+        if (! empty($this->document)) {
+            $data['document'] = $this->document;
+        }
 
         if (! empty($this->email)) {
             $data['email'] = $this->email;

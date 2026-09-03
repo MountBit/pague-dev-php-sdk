@@ -15,11 +15,11 @@ class GetById extends Request
     protected ?string $response = TransactionsGetById::class;
 
     public function __construct(
-        public readonly string $id
+        public readonly string $id,
     ) {}
 
     public function resolveEndpoint(): string
     {
-        return '/transactions/'.$this->id;
+        return '/transactions/'.rawurlencode($this->id);
     }
 }

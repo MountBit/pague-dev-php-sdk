@@ -20,7 +20,7 @@ class Create extends Request implements HasBody
 
     public function __construct(
         protected readonly string $name,
-        protected readonly ?string $color = null,
+        protected readonly string $color,
         protected readonly ?string $description = null,
         protected readonly ?string $logoUrl = null,
     ) {}
@@ -34,11 +34,8 @@ class Create extends Request implements HasBody
     {
         $data = [
             'name' => $this->name,
+            'color' => $this->color,
         ];
-
-        if (! empty($this->color)) {
-            $data['color'] = $this->color;
-        }
 
         if (! empty($this->description)) {
             $data['description'] = $this->description;

@@ -11,32 +11,41 @@ abstract class ApiTestCase extends TestCase
 {
     protected Api $api;
 
-    protected ?string $chargeId = null;
-
     protected ?string $projectId = null;
 
     protected ?string $transactionId = null;
 
-    protected ?string $bankAccountId = null;
+    protected ?string $subAccount = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $apiKey = getenv('PAGUEDEV_SANDBOX_API_KEY');
+        $clientId = getenv('PAGUEDEV_CLIENT_ID');
 
-        if (! $apiKey) {
-            $this->markTestSkipped('PAGUEDEV_SANDBOX_API_KEY not set.');
+        $clientSecret = getenv('PAGUEDEV_CLIENT_SECRET');
+
+        if (! $clientId || ! $clientSecret) {
+            $this->markTestSkipped(
+                'PAGUEDEV_CLIENT_ID / PAGUEDEV_CLIENT_SECRET not set.'
+            );
         }
 
-        $this->chargeId = getenv('PAGUEDEV_SANDBOX_CHARGE_ID') ?: null;
+        $this->projectId = getenv('PAGUEDEV_PROJECT_ID') ?: null;
 
-        $this->projectId = getenv('PAGUEDEV_SANDBOX_PROJECT_ID') ?: null;
+        $this->transactionId = getenv('PAGUEDEV_TRANSACTION_ID') ?: null;
 
-        $this->transactionId = getenv('PAGUEDEV_SANDBOX_TRANSACTION_ID') ?: null;
+        $this->subAccount = getenv('PAGUEDEV_SUB_ACCOUNT') ?: null;
 
-        $this->bankAccountId = getenv('PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID') ?: null;
+        $this->api = new Api(
+            clientId: $clientId,
+            clientSecret: $clientSecret,
+            baseUrl: getenv('PAGUEDEV_BASE_URL') ?: null,
+        );
+    }
 
-        $this->api = new Api($apiKey);
+    protected function uniqueReference(string $prefix): string
+    {
+        return $prefix.'_'.uniqid(more_entropy: true);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MountBit\PagueDev\Tests\Integration\Withdrawals;
 
 use MountBit\PagueDev\Requests\Withdrawals\Create;
@@ -11,38 +13,36 @@ use PHPUnit\Framework\Attributes\Test;
 class CreateWithdrawalTest extends ApiTestCase
 {
     #[Test]
-    public function it_creates_a_withdrawal_with_pix_fields(): void
+    public function it_creates_a_withdrawal(): void
     {
-        $request = new Create(
-            amount: 5.0,
-            pixKey: 'teste@teste.com.br',
-            pixKeyType: 'email',
-            holderName: 'Teste Silva',
-            holderDocument: '12345678901',
-            holderDocumentType: 'cpf',
-        );
-
-        $response = $this->api->send($request);
-
-        $this->assertTrue($response->successful());
-        $this->assertArrayHasKey('id', $response->json());
-    }
-
-    #[Test]
-    public function it_creates_a_withdrawal_bank_account_id(): void
-    {
-        if (empty($this->bankAccountId)) {
-            $this->markTestSkipped('PAGUEDEV_SANDBOX_BANK_ACCOUNT_ID not set.');
+        if (! getenv('PAGUEDEV_RUN_WITHDRAWALS')) {
+            $this->markTestSkipped(
+                'PAGUEDEV_RUN_WITHDRAWALS not set. Withdrawals move balance.'
+            );
         }
 
-        $request = new Create(
-            amount: 5.0,
-            bankAccountId: $this->bankAccountId,
+        $response = $this->api->send(
+            new Create(
+                pixKey: getenv('PAGUEDEV_PIX_KEY') ?: '95633291042',
+                pixKeyType: getenv('PAGUEDEV_PIX_KEY_TYPE') ?: 'cpf',
+                holderName: 'Integration User',
+                holderDocument: '95633291042',
+                holderDocumentType: 'cpf',
+                amount: 1.00,
+                projectId: $this->projectId,
+                externalReference: $this->uniqueReference('saque'),
+                idempotencyKey: $this->uniqueReference('saque-idem'),
+            )
         );
 
-        $response = $this->api->send($request);
-
         $this->assertTrue($response->successful());
-        $this->assertArrayHasKey('id', $response->json());
+
+        $this->assertNotEmpty($response->getId());
+        $this->assertContains(
+            $response->getStatus(),
+            ['pending', 'processing', 'completed', 'failed']
+        );
+        $this->assertIsFloat($response->getFeeAmount());
+        $this->assertIsFloat($response->getNetAmount());
     }
 }

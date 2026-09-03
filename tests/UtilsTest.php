@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace MountBit\PagueDev\Tests;
 
 use chillerlan\QRCode\Common\EccLevel;
-use chillerlan\QRCode\Output\QROutputInterface;
+use chillerlan\QRCode\Output\QRMarkupSVG;
 use MountBit\PagueDev\Dtos\WebhookEvent;
 use MountBit\PagueDev\Exceptions\InvalidSignature;
 use MountBit\PagueDev\Exceptions\InvalidWebhook;
+use MountBit\PagueDev\Exceptions\InvalidWebhookEvent;
+use MountBit\PagueDev\Exceptions\MalformedWebhookPayload;
+use MountBit\PagueDev\Exceptions\MissingWebhookSecret;
 use MountBit\PagueDev\Utils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -23,6 +26,17 @@ class UtilsTest extends TestCase
     }
 
     #[Test]
+    public function it_signs_the_payload_with_the_raw_secret_and_the_sha256_prefix(): void
+    {
+        $rawBody = '{"event":"payment_completed"}';
+
+        $this->assertSame(
+            'sha256='.hash_hmac('sha256', $rawBody, $this->secret),
+            Utils::signWebhook($rawBody, $this->secret)
+        );
+    }
+
+    #[Test]
     public function it_parses_a_valid_webhook_without_event_type_validation(): void
     {
         $payload = [
@@ -33,98 +47,183 @@ class UtilsTest extends TestCase
         ];
 
         $rawBody = json_encode($payload);
-        $signature = $this->sign($rawBody);
 
-        $result = Utils::getInstance()->parseWebhook($rawBody, $signature, $this->secret);
+        $result = Utils::getInstance()->parseWebhook(
+            $rawBody,
+            $this->sign($rawBody),
+            $this->secret
+        );
 
         $this->assertInstanceOf(WebhookEvent::class, $result);
         $this->assertSame('payment_completed', $result->event);
         $this->assertSame('1234', $result->eventId);
         $this->assertSame(['amount' => 100], $result->data);
+        $this->assertNull($result->subAccount);
+    }
+
+    #[Test]
+    public function it_parses_the_sub_account_when_present(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => '1234',
+            'timestamp' => '2026-02-05T19:00:00Z',
+            'subAccount' => 'loja-centro',
+            'data' => [],
+        ]);
+
+        $result = Utils::parseWebhook($rawBody, $this->sign($rawBody), $this->secret);
+
+        $this->assertSame('loja-centro', $result->subAccount);
+    }
+
+    #[Test]
+    public function it_accepts_a_signature_without_the_sha256_prefix(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => '1234',
+            'timestamp' => '2026-02-05T19:00:00Z',
+            'data' => [],
+        ]);
+
+        $signature = hash_hmac('sha256', $rawBody, $this->secret);
+
+        $result = Utils::parseWebhook($rawBody, $signature, $this->secret);
+
+        $this->assertInstanceOf(WebhookEvent::class, $result);
+    }
+
+    #[Test]
+    public function it_rejects_a_signature_generated_with_the_hashed_secret(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => '1234',
+            'timestamp' => '2026-02-05T19:00:00Z',
+            'data' => [],
+        ]);
+
+        $legacySignature = hash_hmac(
+            'sha256',
+            $rawBody,
+            hash('sha256', $this->secret)
+        );
+
+        $this->assertNull(
+            Utils::parseWebhook($rawBody, $legacySignature, $this->secret)
+        );
+    }
+
+    #[Test]
+    public function it_rejects_a_signature_from_another_payload(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => '1234',
+            'timestamp' => '2026-02-05T19:00:00Z',
+            'data' => ['amount' => 100],
+        ]);
+
+        $tamperedBody = str_replace('100', '10000', $rawBody);
+
+        $this->assertNull(
+            Utils::parseWebhook($tamperedBody, $this->sign($rawBody), $this->secret)
+        );
+    }
+
+    #[Test]
+    public function it_requires_a_webhook_secret(): void
+    {
+        $this->expectException(MissingWebhookSecret::class);
+
+        Utils::parseWebhook('{}', 'sha256=abc', '');
     }
 
     #[Test]
     public function it_parses_a_valid_webhook_with_event_type_validation(): void
     {
-        $payload = [
+        $rawBody = json_encode([
             'event' => 'refund_completed',
             'eventId' => 'abcd',
             'timestamp' => '2026-02-05T19:05:00Z',
             'data' => ['refundId' => 'r1'],
-        ];
+        ]);
 
-        $rawBody = json_encode($payload);
-        $signature = $this->sign($rawBody);
-
-        $result = Utils::getInstance()->parseWebhook(
+        $result = Utils::parseWebhook(
             $rawBody,
-            $signature,
+            $this->sign($rawBody),
             $this->secret,
             shouldThrow: true,
             shouldValidateEventType: true
         );
 
-        $this->assertInstanceOf(WebhookEvent::class, $result);
         $this->assertSame('refund_completed', $result->event);
+    }
+
+    #[Test]
+    public function it_accepts_every_documented_event_type(): void
+    {
+        foreach (Utils::WEBHOOK_VALID_EVENTS_TYPES as $eventType) {
+            $rawBody = json_encode([
+                'event' => $eventType,
+                'eventId' => 'evt_1',
+                'timestamp' => '2026-02-05T19:05:00Z',
+                'data' => [],
+            ]);
+
+            $result = Utils::parseWebhook(
+                $rawBody,
+                $this->sign($rawBody),
+                $this->secret,
+                shouldThrow: true,
+                shouldValidateEventType: true
+            );
+
+            $this->assertSame($eventType, $result->event);
+        }
     }
 
     #[Test]
     public function it_throws_invalid_signature_exception_for_invalid_signature(): void
     {
-        $payload = [
+        $rawBody = json_encode([
             'event' => 'payment_completed',
             'eventId' => 'x1',
             'timestamp' => '2026-02-05T19:10:00Z',
             'data' => [],
-        ];
-
-        $rawBody = json_encode($payload);
-        $invalidSignature = 'invalid_signature';
+        ]);
 
         $this->expectException(InvalidSignature::class);
 
-        Utils::getInstance()->parseWebhook(
-            $rawBody,
-            $invalidSignature,
-            $this->secret,
-            shouldThrow: true
-        );
+        Utils::parseWebhook($rawBody, 'invalid_signature', $this->secret, shouldThrow: true);
     }
 
     #[Test]
     public function it_returns_null_for_invalid_signature(): void
     {
-        $payload = [
+        $rawBody = json_encode([
             'event' => 'payment_completed',
             'eventId' => 'x1',
             'timestamp' => '2026-02-05T19:10:00Z',
             'data' => [],
-        ];
+        ]);
 
-        $rawBody = json_encode($payload);
-        $invalidSignature = 'invalid_signature';
-
-        $result = Utils::getInstance()->parseWebhook(
-            $rawBody,
-            $invalidSignature,
-            $this->secret,
-            shouldThrow: false
+        $this->assertNull(
+            Utils::parseWebhook($rawBody, 'invalid_signature', $this->secret)
         );
-
-        $this->assertNull($result);
     }
 
     #[Test]
     public function it_throws_invalid_webhook_exception_for_invalid_json(): void
     {
         $rawBody = '{invalid_json}';
-        $signature = $this->sign($rawBody);
 
         $this->expectException(InvalidWebhook::class);
 
-        Utils::getInstance()->parseWebhook(
+        Utils::parseWebhook(
             $rawBody,
-            $signature,
+            $this->sign($rawBody),
             $this->secret,
             shouldThrow: true
         );
@@ -134,36 +233,130 @@ class UtilsTest extends TestCase
     public function it_returns_null_for_invalid_json(): void
     {
         $rawBody = '{invalid_json}';
-        $signature = $this->sign($rawBody);
 
-        $result = Utils::getInstance()->parseWebhook(
+        $this->assertNull(
+            Utils::parseWebhook($rawBody, $this->sign($rawBody), $this->secret)
+        );
+    }
+
+    #[Test]
+    public function it_returns_null_for_a_json_payload_that_is_not_an_object(): void
+    {
+        $rawBody = '"just-a-string"';
+
+        $this->assertNull(
+            Utils::parseWebhook($rawBody, $this->sign($rawBody), $this->secret)
+        );
+    }
+
+    #[Test]
+    public function it_throws_when_a_required_field_is_missing(): void
+    {
+        $rawBody = json_encode(['event' => 'payment_completed']);
+
+        $this->expectException(MalformedWebhookPayload::class);
+
+        Utils::parseWebhook(
             $rawBody,
-            $signature,
+            $this->sign($rawBody),
             $this->secret,
-            shouldThrow: false
+            shouldThrow: true
+        );
+    }
+
+    #[Test]
+    public function it_defaults_the_data_to_an_empty_array_when_it_is_absent(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => 'evt_1',
+            'timestamp' => '2026-02-05T19:05:00Z',
+        ]);
+
+        $result = Utils::parseWebhook($rawBody, $this->sign($rawBody), $this->secret);
+
+        $this->assertSame([], $result->data);
+    }
+
+    #[Test]
+    public function it_accepts_a_timestamp_inside_the_tolerance(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => 'evt_1',
+            'timestamp' => '2026-02-05T19:05:00Z',
+            'data' => [],
+        ]);
+
+        $result = Utils::parseWebhook(
+            $rawBody,
+            $this->sign($rawBody),
+            $this->secret,
+            shouldThrow: true,
+            timestampHeader: (string) (time() * 1000),
+            toleranceInSeconds: 300,
         );
 
-        $this->assertNull($result);
+        $this->assertInstanceOf(WebhookEvent::class, $result);
+    }
+
+    #[Test]
+    public function it_rejects_a_replayed_timestamp(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => 'evt_1',
+            'timestamp' => '2026-02-05T19:05:00Z',
+            'data' => [],
+        ]);
+
+        $this->expectException(InvalidWebhook::class);
+
+        Utils::parseWebhook(
+            $rawBody,
+            $this->sign($rawBody),
+            $this->secret,
+            shouldThrow: true,
+            timestampHeader: (string) ((time() - 3600) * 1000),
+            toleranceInSeconds: 300,
+        );
+    }
+
+    #[Test]
+    public function it_rejects_a_missing_timestamp_when_a_tolerance_is_given(): void
+    {
+        $rawBody = json_encode([
+            'event' => 'payment_completed',
+            'eventId' => 'evt_1',
+            'timestamp' => '2026-02-05T19:05:00Z',
+            'data' => [],
+        ]);
+
+        $this->assertNull(
+            Utils::parseWebhook(
+                $rawBody,
+                $this->sign($rawBody),
+                $this->secret,
+                toleranceInSeconds: 300,
+            )
+        );
     }
 
     #[Test]
     public function it_throws_invalid_webhook_exception_for_invalid_event_type(): void
     {
-        $payload = [
+        $rawBody = json_encode([
             'event' => 'unknown_event',
             'eventId' => '5678',
             'timestamp' => '2026-02-05T19:15:00Z',
             'data' => [],
-        ];
+        ]);
 
-        $rawBody = json_encode($payload);
-        $signature = $this->sign($rawBody);
+        $this->expectException(InvalidWebhookEvent::class);
 
-        $this->expectException(InvalidWebhook::class);
-
-        Utils::getInstance()->parseWebhook(
+        Utils::parseWebhook(
             $rawBody,
-            $signature,
+            $this->sign($rawBody),
             $this->secret,
             shouldThrow: true,
             shouldValidateEventType: true
@@ -173,64 +366,37 @@ class UtilsTest extends TestCase
     #[Test]
     public function it_returns_null_for_invalid_event_type_when_should_throw_is_false(): void
     {
-        $payload = [
+        $rawBody = json_encode([
             'event' => 'unknown_event',
             'eventId' => '9999',
             'timestamp' => '2026-02-05T19:20:00Z',
             'data' => [],
-        ];
-
-        $rawBody = json_encode($payload);
-        $signature = $this->sign($rawBody);
-
-        $result = Utils::getInstance()->parseWebhook(
-            $rawBody,
-            $signature,
-            $this->secret,
-            shouldThrow: false,
-            shouldValidateEventType: true
-        );
-
-        $this->assertNull($result);
-    }
-
-    #[Test]
-    public function it_throws_exception_when_event_type_is_invalid(): void
-    {
-        $payload = json_encode([
-            'event' => 'unknown_event',
-            'eventId' => 'evt_123',
-            'timestamp' => '2026-02-05T12:00:00.000Z',
-            'data' => [],
         ]);
-        $signature = $this->sign($payload);
 
-        $this->expectException(InvalidWebhook::class);
-        $this->expectExceptionMessage('Invalid webhook event: unknown_event');
-
-        Utils::getInstance()->parseWebhook(
-            rawBody: $payload,
-            signatureHeader: $signature,
-            webhookSecret: $this->secret,
-            shouldThrow: true,
-            shouldValidateEventType: true
+        $this->assertNull(
+            Utils::parseWebhook(
+                $rawBody,
+                $this->sign($rawBody),
+                $this->secret,
+                shouldThrow: false,
+                shouldValidateEventType: true
+            )
         );
     }
 
     #[Test]
     public function it_allows_custom_valid_event_types(): void
     {
-        $payload = json_encode([
+        $rawBody = json_encode([
             'event' => 'custom_event',
             'eventId' => 'evt_456',
             'timestamp' => '2026-02-05T12:30:00.000Z',
             'data' => ['key' => 'value'],
         ]);
-        $signature = $this->sign($payload);
 
-        $event = Utils::getInstance()->parseWebhook(
-            rawBody: $payload,
-            signatureHeader: $signature,
+        $event = Utils::parseWebhook(
+            rawBody: $rawBody,
+            signatureHeader: $this->sign($rawBody),
             webhookSecret: $this->secret,
             shouldThrow: true,
             shouldValidateEventType: true,
@@ -244,11 +410,9 @@ class UtilsTest extends TestCase
     #[Test]
     public function it_generates_an_svg_qr_code(): void
     {
-        $data = 'any-string-can-be-encoded';
-
         $qrCode = Utils::getInstance()->generateQrCode(
-            data: $data,
-            imageType: QROutputInterface::MARKUP_SVG,
+            data: 'any-string-can-be-encoded',
+            outputInterface: QRMarkupSVG::class,
             ecc: EccLevel::M,
         );
 
@@ -260,11 +424,9 @@ class UtilsTest extends TestCase
     #[Test]
     public function it_generates_qr_code_with_different_error_correction_levels(): void
     {
-        $data = 'qr-with-high-ecc';
-
         $qrCode = Utils::getInstance()->generateQrCode(
-            data: $data,
-            imageType: QROutputInterface::MARKUP_SVG,
+            data: 'qr-with-high-ecc',
+            outputInterface: QRMarkupSVG::class,
             ecc: EccLevel::H,
         );
 
@@ -273,17 +435,18 @@ class UtilsTest extends TestCase
     }
 
     #[Test]
-    public function it_generates_qr_code_with_different_output_types(): void
+    public function it_applies_the_error_correction_level(): void
     {
-        $data = 'qr-as-text';
+        $data = 'pix-copy-and-paste-payload';
 
-        $qrCode = Utils::getInstance()->generateQrCode(
-            data: $data,
-            imageType: QROutputInterface::MARKUP_SVG,
+        $low = Utils::getInstance()->generateQrCode(data: $data, ecc: EccLevel::L);
+        $high = Utils::getInstance()->generateQrCode(data: $data, ecc: EccLevel::H);
+
+        $this->assertNotSame(
+            $low,
+            $high,
+            'The ecc argument must change the generated QR code'
         );
-
-        $this->assertIsString($qrCode);
-        $this->assertNotEmpty($qrCode);
     }
 
     #[Test]
@@ -297,6 +460,6 @@ class UtilsTest extends TestCase
 
     private function sign(string $body): string
     {
-        return hash_hmac('sha256', $body, hash('sha256', $this->secret));
+        return Utils::signWebhook($body, $this->secret);
     }
 }

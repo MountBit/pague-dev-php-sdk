@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Tests\Requests\Projects;
 
-use MountBit\PagueDev\Api;
 use MountBit\PagueDev\Requests\Projects\Create as CreateProjectRequest;
 use MountBit\PagueDev\Responses\Projects\Create as CreateProjectResponse;
 use MountBit\PagueDev\Tests\TestCase;
@@ -15,7 +14,7 @@ use Saloon\Http\Faking\MockResponse;
 class CreateProjectRequestTest extends TestCase
 {
     #[Test]
-    public function it_sends_the_request_and_parses_the_response_successfully_when_status_is_201()
+    public function it_sends_the_request_and_parses_the_response_successfully_when_status_is_201(): void
     {
         $mockResponse = $this->fixture('/projects/create/201.json');
 
@@ -25,12 +24,10 @@ class CreateProjectRequestTest extends TestCase
             CreateProjectRequest::class => MockResponse::make($mockResponse, 201),
         ]);
 
-        $connector = (new Api('test'))->withMockClient($mockClient);
-
         $payload = [
-            'name' => 'Test Project',
-            'color' => '#FF0000',
-            'description' => 'Project description',
+            'name' => 'Minha Loja',
+            'color' => '#3B82F6',
+            'description' => 'Loja virtual de eletrônicos',
             'logoUrl' => 'https://example.com/logo.png',
         ];
 
@@ -42,7 +39,7 @@ class CreateProjectRequestTest extends TestCase
         );
 
         /** @var CreateProjectResponse $response */
-        $response = $connector->send($request);
+        $response = $this->connector($mockClient)->send($request);
 
         $mockClient->assertSent(
             fn (CreateProjectRequest $request) => $request->body()->all() === $payload
@@ -54,8 +51,8 @@ class CreateProjectRequestTest extends TestCase
 
         foreach (array_keys($mockResponseJson) as $key) {
             $getter = 'get'.ucfirst($key);
-            $result = $response->$getter();
-            $this->assertSame($mockResponseJson[$key], $result);
+
+            $this->assertEquals($mockResponseJson[$key], $response->$getter());
         }
     }
 }

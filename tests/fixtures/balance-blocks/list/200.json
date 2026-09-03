@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+      "transactionId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "externalReference": "pedido-12345",
+      "e2eId": "E1234567820260210143000123456789",
+      "amount": 150.75,
+      "status": "awaiting_response",
+      "blockType": "med",
+      "referenceNumber": "MED-2026-0001",
+      "reason": "Suspeita de fraude relatada pelo pagador",
+      "resolutionReason": null,
+      "resolvedAt": null,
+      "createdAt": "2026-02-10T14:30:00.000Z"
+    }
+  ],
+  "total": 1
+}

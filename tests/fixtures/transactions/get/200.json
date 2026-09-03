@@ -1,12 +1,11 @@
 {
   "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
-  "status": "pending",
+  "status": "completed",
   "type": "payment",
   "paymentMethod": "pix",
   "amount": 150.75,
   "currency": "BRL",
-  "createdAt": "2023-11-07T05:31:56Z",
-  "description": "<string>",
+  "description": "Pagamento do pedido #12345",
   "externalReference": "pedido-12345",
   "customerId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
   "projectId": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
@@ -15,7 +14,11 @@
     "source": "website"
   },
   "pixCopyPaste": "00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "expiresAt": "2023-11-07T05:31:56Z",
-  "paidAt": "2023-11-07T05:31:56Z",
-  "updatedAt": "2023-11-07T05:31:56Z"
+  "expiresAt": "2026-02-11T05:31:56Z",
+  "paidAt": "2026-02-10T06:31:56Z",
+  "e2eId": "E1234567820260210143000123456789",
+  "counterpartName": "João da Silva",
+  "counterpartDocument": "12345678909",
+  "createdAt": "2026-02-10T05:31:56Z",
+  "updatedAt": "2026-02-10T06:31:56Z"
 }
