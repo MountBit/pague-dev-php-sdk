@@ -24,6 +24,9 @@ class ApiException extends RuntimeException
 
     public const string SUB_ACCOUNT_QUOTA_EXCEEDED = 'SUB_ACCOUNT_QUOTA_EXCEEDED';
 
+    /** Value of details.resource on the API's 404 for an unknown sub-account. */
+    public const string SUB_ACCOUNT_RESOURCE = 'Sub-account';
+
     public function __construct(
         string $message,
         public readonly int $statusCode,
@@ -108,7 +111,18 @@ class ApiException extends RuntimeException
     {
         $code = $this->details['code'] ?? null;
 
-        return is_string($code) ? $code : $this->error;
+        if (is_string($code)) {
+            return $code;
+        }
+
+        // The API documents SUB_ACCOUNT_NOT_FOUND, but the 404 it actually
+        // returns for an unknown X-Sub-Account reference carries only
+        // details.resource. Normalize it so hasErrorCode() works either way.
+        if ($this->statusCode === 404 && ($this->details['resource'] ?? null) === self::SUB_ACCOUNT_RESOURCE) {
+            return self::SUB_ACCOUNT_NOT_FOUND;
+        }
+
+        return $this->error;
     }
 
     public function hasErrorCode(string $errorCode): bool

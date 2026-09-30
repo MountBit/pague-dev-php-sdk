@@ -33,6 +33,7 @@ class Utils
     public const WEBHOOK_VALID_EVENTS_TYPES = [
         'payment_completed',
         'payment_expired',
+        'payment_failed',
         'refund_completed',
         'withdrawal_completed',
         'withdrawal_failed',

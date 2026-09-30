@@ -65,7 +65,7 @@ class ExceptionsTest extends TestCase
         $response = $this->respondWith([
             'statusCode' => 409,
             'error' => 'Conflict',
-            'message' => "reference 'catequize' já usado nesta conta",
+            'message' => "reference 'loja-centro' já usado nesta conta",
             'details' => ['code' => 'SUB_ACCOUNT_REFERENCE_TAKEN'],
             'timestamp' => '2026-09-01T19:26:01.916Z',
             'traceId' => 'be0a39e2dfb44b924445f04b0fce1928',
@@ -99,6 +99,57 @@ class ExceptionsTest extends TestCase
         $exception = ApiException::fromResponse($response);
 
         $this->assertSame('NotFound', $exception->getErrorCode());
+    }
+
+    #[Test]
+    public function it_normalizes_the_sub_account_404_that_comes_without_a_business_code(): void
+    {
+        // Shape the API returns for an unknown X-Sub-Account reference.
+        $response = $this->respondWith([
+            'statusCode' => 404,
+            'error' => 'NotFound',
+            'message' => 'Sub-account with id loja-centro not found',
+            'details' => ['resource' => 'Sub-account', 'id' => 'loja-centro'],
+        ], 404);
+
+        $exception = ApiException::fromResponse($response);
+
+        $this->assertInstanceOf(NotFound::class, $exception);
+        $this->assertSame(ApiException::SUB_ACCOUNT_NOT_FOUND, $exception->getErrorCode());
+        $this->assertTrue($exception->hasErrorCode(ApiException::SUB_ACCOUNT_NOT_FOUND));
+        $this->assertSame(
+            ['resource' => 'Sub-account', 'id' => 'loja-centro'],
+            $exception->getDetails()
+        );
+    }
+
+    #[Test]
+    public function it_prefers_the_documented_business_code_over_the_resource(): void
+    {
+        $response = $this->respondWith([
+            'statusCode' => 404,
+            'error' => 'NotFound',
+            'message' => 'Sub-account not found',
+            'details' => ['code' => 'SUB_ACCOUNT_NOT_FOUND', 'resource' => 'Sub-account'],
+        ], 404);
+
+        $this->assertSame(
+            ApiException::SUB_ACCOUNT_NOT_FOUND,
+            ApiException::fromResponse($response)->getErrorCode()
+        );
+    }
+
+    #[Test]
+    public function it_does_not_treat_a_sub_account_resource_outside_a_404_as_not_found(): void
+    {
+        $response = $this->respondWith([
+            'statusCode' => 403,
+            'error' => 'Forbidden',
+            'message' => 'Forbidden',
+            'details' => ['resource' => 'Sub-account'],
+        ], 403);
+
+        $this->assertSame('Forbidden', ApiException::fromResponse($response)->getErrorCode());
     }
 
     #[Test]
@@ -143,11 +194,11 @@ class ExceptionsTest extends TestCase
         $response = $this->respondWith([
             'statusCode' => 400,
             'error' => 'BadRequest',
-            'message' => "reference 'catequize' já usado nesta conta",
+            'message' => "reference 'loja-centro' já usado nesta conta",
         ], 400);
 
         $this->assertSame(
-            "reference 'catequize' já usado nesta conta",
+            "reference 'loja-centro' já usado nesta conta",
             ApiException::fromResponse($response)->getMessage()
         );
     }

@@ -185,6 +185,25 @@ class UtilsTest extends TestCase
     }
 
     #[Test]
+    public function it_lists_exactly_the_events_in_the_webhooks_documentation(): void
+    {
+        // Mirrors the "Eventos Disponíveis" table at docs.pague.dev/api-reference/webhooks.
+        // Iterating the constant alone would never catch a missing event.
+        $this->assertEqualsCanonicalizing([
+            'payment_completed',
+            'payment_expired',
+            'payment_failed',
+            'refund_completed',
+            'withdrawal_completed',
+            'withdrawal_failed',
+            'withdrawal_reversed',
+            'balance_block_created',
+            'balance_block_approved',
+            'balance_block_rejected',
+        ], Utils::WEBHOOK_VALID_EVENTS_TYPES);
+    }
+
+    #[Test]
     public function it_throws_invalid_signature_exception_for_invalid_signature(): void
     {
         $rawBody = json_encode([

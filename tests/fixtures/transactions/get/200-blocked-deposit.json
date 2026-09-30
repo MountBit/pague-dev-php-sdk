@@ -1,0 +1,23 @@
+{
+  "id": "13e3ffd1-55d9-4863-9cc1-8955475cdf64",
+  "status": "failed",
+  "type": "payment",
+  "paymentMethod": "pix",
+  "amount": 5000.00,
+  "currency": "BRL",
+  "externalReference": "pedido-12345",
+  "e2eId": "E71328769202609092049JcZwvkhgNGJ",
+  "counterpartName": "EMPRESA PAGADORA LTDA",
+  "counterpartDocument": "60937487000165",
+  "failureReason": "Bloqueio de depósito: pagador CNPJ não permitido",
+  "blockedDeposit": {
+    "reason": "cnpj_payer_not_allowed",
+    "refund": {
+      "status": "confirmed",
+      "e2eId": "D54811417202609082224L1aDrByinUX",
+      "settledAt": "2026-09-09T20:50:14.900Z"
+    }
+  },
+  "createdAt": "2026-09-09T20:49:41.506Z",
+  "updatedAt": "2026-09-09T20:50:17.610Z"
+}

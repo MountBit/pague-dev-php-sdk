@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MountBit\PagueDev\Responses\Transactions;
 
+use MountBit\PagueDev\Dtos\BlockedDeposit;
 use Saloon\Http\Response;
 
 class GetById extends Response
@@ -96,6 +97,18 @@ class GetById extends Response
     public function getCounterpartDocument(): ?string
     {
         return $this->json('counterpartDocument');
+    }
+
+    public function getFailureReason(): ?string
+    {
+        return $this->json('failureReason');
+    }
+
+    public function getBlockedDeposit(): ?BlockedDeposit
+    {
+        $blockedDeposit = $this->json('blockedDeposit');
+
+        return is_array($blockedDeposit) ? BlockedDeposit::fromArray($blockedDeposit) : null;
     }
 
     public function getUpdatedAt(): ?string

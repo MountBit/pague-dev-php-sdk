@@ -361,7 +361,7 @@ if ($response->getStatus() === 'completed') {
 
 | Nome | Tipo | Obrigatório |
 | --- | --- | --- |
-| `id` | string | **sim** |
+| `id` | string | **sim** — o UUID da transação, o seu `externalReference` ou a `Idempotency-Key` usada na criação (resolvidos nessa ordem). Saque ainda em processamento também é encontrado por qualquer um deles |
 
 **Resposta `200`** — principais getters:
 
@@ -381,7 +381,24 @@ if ($response->getStatus() === 'completed') {
 | `getE2eId()` | `?string` — id fim-a-fim da rede PIX |
 | `getCounterpartName()` | `?string` — nome do pagador, conforme o PSP |
 | `getCounterpartDocument()` | `?string` — CPF/CNPJ sem máscara |
+| `getFailureReason()` | `?string` — motivo da falha, só quando `status` = `failed` |
+| `getBlockedDeposit()` | `?Dtos\BlockedDeposit` — ver abaixo |
 | `getCreatedAt()` / `getUpdatedAt()` | `string` / `?string` |
+
+**Depósito bloqueado.** Quando a conta recusa um PIX **recebido** por política (hoje, pagador CNPJ não permitido), a transação vem com `status: failed` e `getBlockedDeposit()` preenchido. O valor **não** foi creditado e é devolvido ao pagador automaticamente:
+
+```php
+$blocked = $response->getBlockedDeposit();
+
+if ($blocked !== null) {
+    $blocked->reason;             // 'cnpj_payer_not_allowed' (BlockedDeposit::REASON_CNPJ_PAYER_NOT_ALLOWED)
+    $blocked->refund?->status;    // 'pending', 'confirmed' ou 'failed' (constantes em BlockedDepositRefund)
+    $blocked->refund?->e2eId;     // E2E da devolução (D…), quando já conhecido
+    $blocked->refund?->settledAt; // quando a devolução liquidou
+}
+```
+
+O webhook `payment_failed` avisa o bloqueio na hora; o E2E da devolução costuma chegar segundos depois, então consulte esta rota para o dado final.
 
 > **Não use polling para confirmar pagamento.** Consulte sob demanda e confie no webhook `payment_completed` para o fluxo automático.
 
@@ -601,7 +618,7 @@ $response = $connector->send(new CreateSubAccount(
 
 **Resposta `201`:** `getId()`, `getReference()`, `getName()`, `getStatus()`, `getCreatedAt()`, `getSubAccount()`.
 
-**Erros:** `400` (`SUB_ACCOUNT_INVALID_REFERENCE`), `401`, `403` (`SUB_ACCOUNT_FORBIDDEN`), `409` (`SUB_ACCOUNT_REFERENCE_TAKEN`, `SUB_ACCOUNT_QUOTA_EXCEEDED`), `500`.
+**Erros:** `400` (`SUB_ACCOUNT_INVALID_REFERENCE`), `401`, `403` (`Insufficient permissions. Required: SUBACCOUNT:WRITE`), `409` (`SUB_ACCOUNT_REFERENCE_TAKEN`, `SUB_ACCOUNT_QUOTA_EXCEEDED`), `500`.
 
 ---
 
@@ -617,7 +634,7 @@ foreach ($connector->send(new ListSubAccounts)->getData() as $subAccount) {
 
 Sem parâmetros. **Resposta `200`:** `getData()` — array de `Dtos\SubAccount` (`->id`, `->reference`, `->name`, `->status`, `->createdAt`).
 
-**Erros:** `401`, `403`, `500`.
+**Erros:** `401`, `403` (`Insufficient permissions. Required: SUBACCOUNT:READ`), `500`.
 
 ---
 
@@ -660,6 +677,19 @@ $lojaCentro->send(new CreatePix(amount: 50.00, description: 'Venda da loja centr
 ```
 
 `forSubAccount()` devolve **um novo connector** e reaproveita o token já obtido — o original continua apontando para a conta principal.
+
+### Permissão × escopo da credencial
+
+Duas coisas diferentes controlam o acesso a subcontas, e elas falham de formas diferentes:
+
+| O quê | Vale para | Sem ela |
+| --- | --- | --- |
+| **Permissão** `SUBACCOUNT:READ` / `SUBACCOUNT:WRITE` (ou `FULL_ACCESS`) | listar e criar subcontas (`/sub-accounts`) | `403 Insufficient permissions. Required: SUBACCOUNT:READ` |
+| **Escopo** "Acesso a subcontas" | operar **dentro** de uma subconta: header `X-Sub-Account` (`forSubAccount()`) e `split` | `403 SUB_ACCOUNT_FORBIDDEN` |
+
+O escopo **nasce desligado e nenhuma permissão o substitui** — nem `FULL_ACCESS`. Uma credencial nova recebe `SUB_ACCOUNT_FORBIDDEN` no primeiro request com `X-Sub-Account` até alguém ligar o campo **Acesso a subcontas** em *Configurações → Integração → Credenciais de API* no painel do pague.dev (vale na hora, inclusive para tokens já emitidos). Por outro lado, criar uma cobrança com `X-Sub-Account` e `split` exige só `PIX:WRITE`: as permissões `SUBACCOUNT:*` governam o cadastro de carteiras, não o uso delas.
+
+Sandbox e produção são árvores isoladas: uma credencial `mp_test_*` só enxerga carteiras do sandbox e uma `mp_live_*`, só as de produção. A mesma subconta precisa ser criada em cada ambiente — do contrário a API responde `404` (`SUB_ACCOUNT_NOT_FOUND`).
 
 Para repartir uma cobrança na liquidação:
 
@@ -781,6 +811,17 @@ Todas estendem `ApiException` e carregam **a mensagem devolvida pelo pague.dev**
 
 Códigos de negócio conhecidos, disponíveis como constantes de `ApiException`: `SUB_ACCOUNT_NOT_FOUND`, `SUB_ACCOUNT_FORBIDDEN`, `SUB_ACCOUNT_SUSPENDED`, `SUB_ACCOUNT_REFERENCE_TAKEN`, `SUB_ACCOUNT_INVALID_REFERENCE`, `SUB_ACCOUNT_QUOTA_EXCEEDED`.
 
+| Código | Status | Quando acontece |
+| --- | --- | --- |
+| `SUB_ACCOUNT_NOT_FOUND` | 404 | o `reference` enviado em `X-Sub-Account` não existe nesta conta (ou existe só no outro ambiente) |
+| `SUB_ACCOUNT_FORBIDDEN` | 403 | o escopo "Acesso a subcontas" da credencial está desligado ou não alcança essa subconta |
+| `SUB_ACCOUNT_SUSPENDED` | 403 | a subconta está suspensa |
+| `SUB_ACCOUNT_QUOTA_EXCEEDED` | 409 | a conta atingiu o limite de subcontas |
+| `SUB_ACCOUNT_REFERENCE_TAKEN` | 409 | o `reference` já está em uso nesta conta |
+| `SUB_ACCOUNT_INVALID_REFERENCE` | 400 | tentativa de criar a subconta `principal`, palavra reservada |
+
+> A API documenta `SUB_ACCOUNT_NOT_FOUND`, mas hoje o `404` de subconta inexistente chega sem `details.code` — só com `details.resource: "Sub-account"`. O `getErrorCode()` normaliza esse caso, então `hasErrorCode(ApiException::SUB_ACCOUNT_NOT_FOUND)` funciona com qualquer um dos dois formatos.
+
 ### Erros anteriores à chamada HTTP
 
 Não têm mensagem da API para exibir, então o SDK também não inventa uma: quem comunica é o **tipo**.
@@ -846,7 +887,7 @@ Use o **corpo bruto** (`php://input`), nunca `$_POST` nem o JSON já decodificad
 
 O `WebhookEvent` devolvido expõe `->event`, `->eventId`, `->timestamp`, `->subAccount` e `->data`.
 
-**Eventos:** `payment_completed`, `payment_expired`, `refund_completed`, `withdrawal_completed`, `withdrawal_failed`, `withdrawal_reversed`, `balance_block_created`, `balance_block_approved`, `balance_block_rejected`.
+**Eventos:** `payment_completed`, `payment_expired`, `payment_failed` (PIX recebido mas recusado por política da conta — traz `failureReason` e `blockedDeposit`), `refund_completed`, `withdrawal_completed`, `withdrawal_failed`, `withdrawal_reversed`, `balance_block_created`, `balance_block_approved`, `balance_block_rejected`.
 
 Boas práticas: responda `200` imediatamente e processe de forma assíncrona; **use o `eventId` para deduplicar** (a plataforma reenvia até 5 vezes com backoff); exponha o endpoint apenas por HTTPS.
 
