@@ -20,7 +20,7 @@
         "saloonphp/saloon": "^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^12.0",
+        "phpunit/phpunit": "^13.4",
         "laravel/pint": "^1.0"
     },
     "suggests": {
